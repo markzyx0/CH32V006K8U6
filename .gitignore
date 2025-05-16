@@ -1,0 +1,21 @@
+# Eclipse工程文件
+.project
+.cproject
+.mrs/
+*.launch
+*.wvproj
+
+# 编译产物
+Debug/
+obj/
+*.elf
+*.hex
+*.map
+*.lst
+
+# 对象文件
+*.o
+*.d
+
+# 生成文件
+*.mk
