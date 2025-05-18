@@ -6,7 +6,6 @@
 #*.wvproj
 
 # 编译产物
-Debug/
 obj/
 *.elf
 *.hex
