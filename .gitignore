@@ -1,9 +1,9 @@
 # Eclipse工程文件
-.project
-.cproject
-.mrs/
-*.launch
-*.wvproj
+#.project
+#.cproject
+#.mrs/
+#*.launch
+#*.wvproj
 
 # 编译产物
 Debug/

@@ -15,7 +15,6 @@
 #define BSP_ADC_CHANNEL ADC_Channel_0
 
 /* 延时函数 */
-void BSP_DelayInit(void);
 void DelayUs(uint32_t us);
 void DelayMs(uint32_t ms);
 

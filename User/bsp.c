@@ -1,11 +1,7 @@
 #include "bsp.h"
 #include "debug.h"
 #include "main.h"
-/* 延时初始化 */
-void BSP_DelayInit(void) {
-    SysTick->CTLR = 0;
-    SysTick->SR = 0;
-}
+
 
 /*********************************************************************
  * @fn      Delay_SoftUs
@@ -31,10 +27,8 @@ void DelayMs(uint32_t ms)
 {
      while (ms--)
     {
-        Delay_SoftUs(1000);
+        DelayUs(1000);
     }
-    // uint32_t start = uwTick;
-    // while((uwTick - start) < ms);
 }
 
 /* LED初始化 */
@@ -73,160 +67,6 @@ void BSP_KEYInit(void) {
     // GPIO_Init(BSP_KEY_PORT, &GPIO_InitStructure);
 }
 
-/*********************************************************************
- * @fn      TIM1_OutCompare_Init
- *
- * @brief   Initializes TIM1 output compare.
- *
- * @param   arr - the period value.
- *          psc - the prescaler value.
- *          ccp - the pulse value.
- *
- * @return  none
- */
-void TIM1_PWMOut_Init(u16 arr, u16 psc, u16 ccp)
-{
-    GPIO_InitTypeDef GPIO_InitStructure={0};
-    TIM_OCInitTypeDef TIM_OCInitStructure={0};
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure={0};
-
-    RCC_PB2PeriphClockCmd( RCC_PB2Periph_GPIOC | RCC_PB2Periph_TIM1, ENABLE );
-
-    GPIO_PinRemapConfig(GPIO_PartialRemap2_TIM1,ENABLE);
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_30MHz;
-    GPIO_Init( GPIOC, &GPIO_InitStructure );
-    GPIO_PinRemapConfig(GPIO_PartialRemap2_TIM1,ENABLE);
-
-    TIM_TimeBaseInitStructure.TIM_Period = arr;
-    TIM_TimeBaseInitStructure.TIM_Prescaler = psc;
-    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-    TIM_TimeBaseInit( TIM1, &TIM_TimeBaseInitStructure);
-
-  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-
-
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = ccp;
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-    TIM_OC3Init( TIM1, &TIM_OCInitStructure );
-
-    TIM_CtrlPWMOutputs(TIM1, ENABLE );
-    TIM_OC1PreloadConfig( TIM1, TIM_OCPreload_Disable );
-    TIM_ARRPreloadConfig( TIM1, ENABLE );
-    TIM_Cmd( TIM1, ENABLE );
-}
-
-/*********************************************************************
- * @fn      TIM2_OutCompare_Init
- *
- * @brief   Initializes TIM2 output compare.
- *
- * @param   arr - the period value.
- *          psc - the prescaler value.
- *          ccp - the pulse value.
- *
- * @return  none
- */
-void TIM2_PWMOut_Init(u16 arr, u16 psc, u16 ccp)
-{
-    GPIO_InitTypeDef GPIO_InitStructure={0};
-    TIM_OCInitTypeDef TIM_OCInitStructure={0};
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure={0};
-
-    RCC_PB2PeriphClockCmd( RCC_PB2Periph_GPIOC, ENABLE );
-    
-    RCC_PB1PeriphClockCmd( RCC_PB1Periph_TIM2, ENABLE );
-
-
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_30MHz;
-    GPIO_Init( GPIOC, &GPIO_InitStructure );
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
-    GPIO_Init( GPIOD, &GPIO_InitStructure );
-    GPIO_PinRemapConfig(GPIO_PartialRemap3_TIM2,ENABLE);
-
-    TIM_TimeBaseInitStructure.TIM_Period = arr;
-    TIM_TimeBaseInitStructure.TIM_Prescaler = psc;
-    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-    TIM_TimeBaseInit( TIM2, &TIM_TimeBaseInitStructure);
-
-  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-
-
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = ccp;
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-    TIM_OC1Init( TIM2, &TIM_OCInitStructure );
-    TIM_OC3Init( TIM2, &TIM_OCInitStructure );
-    TIM_CtrlPWMOutputs(TIM1, ENABLE );
-    TIM_OC1PreloadConfig( TIM2, TIM_OCPreload_Disable );
-    TIM_ARRPreloadConfig( TIM2, ENABLE );
-    TIM_Cmd( TIM2, ENABLE );
-}
-/*********************************************************************
- * @fn      TIM1_UP_IRQHandler
- *
- * @brief   This function handles TIM1 UP exception.
- *
- *
- * @return  none
- */
-void TIM2_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
-void TIM2_IRQHandler(void)
-{
-    if(TIM_GetITStatus(TIM2, TIM_IT_Update)==SET)
-    {
-        BSP_LED_PORT->OUTDR^=BSP_LED_PIN;
-        
- //       printf("--------updata\r\n");
-    }
-    TIM_ClearITPendingBit( TIM2, TIM_IT_Update );
-}
-/*********************************************************************
- * @fn      TIM2_INT_Init
- *
- * @brief   Initializes TIM1 output compare.
- *
- * @param   arr - the period value.
- *          psc - the prescaler value.
- *
- * @return  none
- */
-void TIM2_INT_Init( u16 arr, u16 psc)
-{
-    //uint32_t tempreg=0;
-
-    NVIC_InitTypeDef NVIC_InitStructure={0};
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure={0};
-
-    RCC_PB1PeriphClockCmd(RCC_PB1Periph_TIM2, ENABLE );
-
-
-
-    TIM_TimeBaseInitStructure.TIM_Period = arr;
-    TIM_TimeBaseInitStructure.TIM_Prescaler = psc;
-    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-    //TIM_TimeBaseInitStructure.TIM_RepetitionCounter = 50;
-    TIM_TimeBaseInit( TIM2, &TIM_TimeBaseInitStructure);
-    
-    TIM_ClearITPendingBit( TIM2, TIM_IT_Update );
-
-    NVIC_InitStructure.NVIC_IRQChannel =TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority =0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority =1;
-    NVIC_InitStructure.NVIC_IRQChannelCmd =ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-
-    TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-
-}
-
 /* ADC初始化 */
 
 /*********************************************************************
@@ -252,7 +92,7 @@ void ADC_Function_Init(void)
 
     GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_5;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-     GPIO_Init(GPIOD, &GPIO_InitStructure);
+    GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 
 
@@ -272,17 +112,11 @@ void ADC_Function_Init(void)
     ADC_AnalogWatchdogCmd(ADC1, ADC_AnalogWatchdog_None);
 
 
-    // NVIC_InitStructure.NVIC_IRQChannel = ADC_IRQn;
-    // NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-    // NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    // NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    // NVIC_Init(&NVIC_InitStructure);
-    //ADC_ITConfig(ADC1, ADC_IT_AWD, ENABLE);
-
     ADC_DMACmd(ADC1, ENABLE);
     ADC_Cmd(ADC1, ENABLE);
 
     ADC_BufferCmd(ADC1, DISABLE);    //disable buffer
+    
 }
 
 /*********************************************************************
@@ -316,14 +150,4 @@ u16 Get_ADC_Val(u8 ch)
     val = ADC_GetConversionValue(ADC1);
 
     return val;
-}
-
- void SensorOutputControl(uint8_t state,uint8_t type)
- {
-    
- }
-
-void StartStopDimmingControl(uint8_t state)
-{
-    
 }
